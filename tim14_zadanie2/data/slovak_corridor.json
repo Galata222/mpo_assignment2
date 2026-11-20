@@ -1,0 +1,120 @@
+{
+  "meta": {
+    "source": "Synthetic ZSSK-corridor subset modelled on Košice–Bratislava main line",
+    "day": "D",
+    "time_unit": "minutes since 00:00 of day D",
+    "stations_corridor": [
+      "Košice",
+      "Prešov",
+      "Poprad-Tatry",
+      "Vrútky",
+      "Žilina",
+      "Trenčín",
+      "Trnava",
+      "Bratislava"
+    ]
+  },
+  "stations": [
+    {"id": "KE", "name": "Košice"},
+    {"id": "PO", "name": "Prešov"},
+    {"id": "PP", "name": "Poprad-Tatry"},
+    {"id": "VR", "name": "Vrútky"},
+    {"id": "ZA", "name": "Žilina"},
+    {"id": "TN", "name": "Trenčín"},
+    {"id": "TT", "name": "Trnava"},
+    {"id": "BA", "name": "Bratislava"}
+  ],
+  "trips": [
+    {
+      "train_id": "IC521",
+      "name": "Direct morning IC Košice→Bratislava (slow direct)",
+      "day": "D",
+      "stops": [
+        {"station": "Košice", "arrival": 475, "departure": 480},
+        {"station": "Prešov", "arrival": 510, "departure": 512},
+        {"station": "Poprad-Tatry", "arrival": 555, "departure": 557},
+        {"station": "Vrútky", "arrival": 600, "departure": 602},
+        {"station": "Žilina", "arrival": 615, "departure": 618},
+        {"station": "Trenčín", "arrival": 645, "departure": 647},
+        {"station": "Trnava", "arrival": 660, "departure": 662},
+        {"station": "Bratislava", "arrival": 670, "departure": 670}
+      ]
+    },
+    {
+      "train_id": "R801",
+      "name": "Fast morning R Košice→Žilina",
+      "day": "D",
+      "stops": [
+        {"station": "Košice", "arrival": 475, "departure": 480},
+        {"station": "Prešov", "arrival": 505, "departure": 507},
+        {"station": "Poprad-Tatry", "arrival": 545, "departure": 547},
+        {"station": "Vrútky", "arrival": 585, "departure": 587},
+        {"station": "Žilina", "arrival": 600, "departure": 600}
+      ]
+    },
+    {
+      "train_id": "EC125",
+      "name": "Connecting EC Žilina→Bratislava (tight feasible transfer)",
+      "day": "D",
+      "stops": [
+        {"station": "Žilina", "arrival": 600, "departure": 605},
+        {"station": "Trenčín", "arrival": 625, "departure": 627},
+        {"station": "Trnava", "arrival": 640, "departure": 642},
+        {"station": "Bratislava", "arrival": 650, "departure": 650}
+      ]
+    },
+    {
+      "train_id": "R810",
+      "name": "Mid-morning R Košice→Žilina (later window)",
+      "day": "D",
+      "stops": [
+        {"station": "Košice", "arrival": 535, "departure": 540},
+        {"station": "Poprad-Tatry", "arrival": 600, "departure": 602},
+        {"station": "Žilina", "arrival": 655, "departure": 655}
+      ]
+    },
+    {
+      "train_id": "Os4210",
+      "name": "Regional Prešov→Poprad-Tatry",
+      "day": "D",
+      "stops": [
+        {"station": "Prešov", "arrival": 520, "departure": 525},
+        {"station": "Poprad-Tatry", "arrival": 575, "departure": 575}
+      ]
+    },
+    {
+      "train_id": "IC512",
+      "name": "Afternoon return Bratislava→Košice",
+      "day": "D",
+      "stops": [
+        {"station": "Bratislava", "arrival": 780, "departure": 785},
+        {"station": "Trnava", "arrival": 800, "departure": 802},
+        {"station": "Trenčín", "arrival": 820, "departure": 822},
+        {"station": "Žilina", "arrival": 850, "departure": 853},
+        {"station": "Poprad-Tatry", "arrival": 910, "departure": 912},
+        {"station": "Košice", "arrival": 980, "departure": 980}
+      ]
+    },
+    {
+      "train_id": "EN477",
+      "name": "Night EN Žilina→Bratislava (midnight crossover)",
+      "day": "D",
+      "stops": [
+        {"station": "Žilina", "arrival": 1390, "departure": 1395},
+        {"station": "Trenčín", "arrival": 1440, "departure": 1442},
+        {"station": "Trnava", "arrival": 1490, "departure": 1492},
+        {"station": "Bratislava", "arrival": 1530, "departure": 1530}
+      ]
+    },
+    {
+      "train_id": "R720",
+      "name": "Evening R Trenčín→Bratislava",
+      "day": "D",
+      "stops": [
+        {"station": "Trenčín", "arrival": 1080, "departure": 1085},
+        {"station": "Trnava", "arrival": 1110, "departure": 1112},
+        {"station": "Bratislava", "arrival": 1135, "departure": 1135}
+      ]
+    }
+  ]
+}

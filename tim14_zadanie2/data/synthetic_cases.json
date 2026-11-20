@@ -1,0 +1,89 @@
+{
+  "meta": {
+    "purpose": "Controlled edge cases: midnight, tight transfer, cycle graph, unreachable",
+    "day": "D",
+    "time_unit": "minutes since 00:00 of day D"
+  },
+  "stations": [
+    {"id": "A", "name": "Alpha"},
+    {"id": "B", "name": "Beta"},
+    {"id": "C", "name": "Gamma"},
+    {"id": "X", "name": "IsolatedX"},
+    {"id": "Y", "name": "IsolatedY"}
+  ],
+  "trips": [
+    {
+      "train_id": "SYN_NIGHT",
+      "name": "Synthetic midnight Alpha→Gamma",
+      "day": "D",
+      "stops": [
+        {"station": "Alpha", "arrival": 1390, "departure": 1395},
+        {"station": "Beta", "arrival": 1450, "departure": 1452},
+        {"station": "Gamma", "arrival": 1530, "departure": 1530}
+      ]
+    },
+    {
+      "train_id": "SYN_T1",
+      "name": "Tight-transfer feeder Alpha→Beta",
+      "day": "D",
+      "stops": [
+        {"station": "Alpha", "arrival": 480, "departure": 490},
+        {"station": "Beta", "arrival": 520, "departure": 520}
+      ]
+    },
+    {
+      "train_id": "SYN_T2",
+      "name": "Tight-transfer connector Beta→Gamma (4 min wait if paired with SYN_T1)",
+      "day": "D",
+      "stops": [
+        {"station": "Beta", "arrival": 520, "departure": 524},
+        {"station": "Gamma", "arrival": 560, "departure": 560}
+      ]
+    },
+    {
+      "train_id": "SYN_T2OK",
+      "name": "Feasible connector Beta→Gamma (10 min wait)",
+      "day": "D",
+      "stops": [
+        {"station": "Beta", "arrival": 525, "departure": 530},
+        {"station": "Gamma", "arrival": 570, "departure": 570}
+      ]
+    },
+    {
+      "train_id": "SYN_AB",
+      "name": "Cycle edge Alpha→Beta",
+      "day": "D",
+      "stops": [
+        {"station": "Alpha", "arrival": 600, "departure": 610},
+        {"station": "Beta", "arrival": 640, "departure": 640}
+      ]
+    },
+    {
+      "train_id": "SYN_BA",
+      "name": "Cycle edge Beta→Alpha (enables A→B→A)",
+      "day": "D",
+      "stops": [
+        {"station": "Beta", "arrival": 645, "departure": 650},
+        {"station": "Alpha", "arrival": 680, "departure": 680}
+      ]
+    },
+    {
+      "train_id": "SYN_AC",
+      "name": "Cycle escape Alpha→Gamma",
+      "day": "D",
+      "stops": [
+        {"station": "Alpha", "arrival": 685, "departure": 690},
+        {"station": "Gamma", "arrival": 730, "departure": 730}
+      ]
+    },
+    {
+      "train_id": "SYN_ISO",
+      "name": "Isolated stub X→Y (unreachable from corridor OD)",
+      "day": "D",
+      "stops": [
+        {"station": "IsolatedX", "arrival": 100, "departure": 120},
+        {"station": "IsolatedY", "arrival": 200, "departure": 200}
+      ]
+    }
+  ]
+}
