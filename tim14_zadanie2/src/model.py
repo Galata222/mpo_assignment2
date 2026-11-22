@@ -85,6 +85,7 @@ def evaluate_candidate(
       3. First-departure window: t_0 ≤ d_1 ≤ t_0 + H
       4. Leg validity & positive duration via valid_legs index
       5. Station continuity & distinct trains between consecutive legs
+         (same-train travel is already one pre-expanded leg, so id_i ≠ id_{i+1})
       6. Minimum transfer buffer: d_{i+1} − a_i ≥ τ_min
       7. Acyclicity: no revisited station
     """

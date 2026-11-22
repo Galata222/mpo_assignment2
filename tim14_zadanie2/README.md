@@ -1,6 +1,8 @@
 # Zadanie 2 — Static Train Route Optimization with Transfer Penalties
 
-**Team:** 14 (tim14)  
+**Team:** 14 (tim14) — Galata Waqwaya Gichile, Oleksiy Orlyk, Rostyslav Matsko  
+**Affiliation:** Katedra počítačov a informatiky, Technická univerzita v Košiciach  
+**Contact:** galata.waqwaya.gichile@student.tuke.sk, oleksiy.orlyk@student.tuke.sk, rostyslav.matsko@student.tuke.sk  
 **Course:** Moderné prístupy v optimalizácii (MPO), FEI KKUI TUKE  
 **Python:** 3.12+ (standard library only — no `pip install` required)
 
@@ -18,21 +20,38 @@ Constraints: departure window \([t_0,t_0+H]\), valid timetable legs, station con
 
 ---
 
+## Data provenance (important)
+
+Shipped JSON files are **hand-crafted, ZSSK-shaped synthetic** timetables (`meta.provenance = hand_crafted_synthetic`), not a verbatim ZSSK GTFS dump. They are sized for reproducible verification (λ trade-off, midnight, infeasible audits).
+
+To rebuild from a real GTFS folder (`stops.txt`, `trips.txt`, `stop_times.txt`):
+
+```bash
+python scripts/parse_gtfs.py --gtfs-dir path/to/gtfs --out data/slovak_corridor.json
+```
+
+---
+
 ## Repository layout
 
 ```text
 tim14_zadanie2/
 ├── data/
-│   ├── slovak_corridor.json      # Filtered ZSSK-style corridor timetable
+│   ├── slovak_corridor.json      # Synthetic ZSSK-shaped corridor
 │   └── synthetic_cases.json      # Edge cases (midnight, tight transfer, cycle)
 ├── scripts/
 │   └── parse_gtfs.py             # Optional GTFS → JSON converter
 ├── src/
-│   ├── __init__.py
 │   ├── model.py                  # Leg / Instance, O(k) validator, f(x)
 │   ├── instances.py              # JSON loader + dual hash indexes
 │   └── baseline.py               # Blind Random + Constructive Walk
-├── main.py                       # All verification scenarios
+├── tests/
+│   └── test_model.py             # Stdlib unittest suite
+├── report/
+│   ├── report_tim14_2.tex        # Slovak LaTeX source
+│   └── build.ps1                 # pdflatex helper
+├── main.py                       # Verification + sensitivity tables
+├── report_tim14_2.pdf            # 4–6 page report
 └── README.md
 ```
 
@@ -43,67 +62,58 @@ tim14_zadanie2/
 ```bash
 cd tim14_zadanie2
 python main.py
+python -m unittest tests.test_model -v
 ```
 
-Expected: all four scenarios plus the baseline comparison table, total runtime **&lt; 5 seconds**.
-
-Reproducibility: `random.seed(42)` is fixed inside `main.py`.
+Expected: four scenarios + baseline comparison + sensitivity table; total runtime **&lt; 5 seconds**.  
+Reproducibility: `random.seed(42)`.
 
 ---
 
 ## What `main.py` prints
 
-| Scenario | What is verified |
+| Block | What is verified |
 | :--- | :--- |
-| **1. Transfer-penalty trade-off** | Direct \(T=190,N=0\) vs 1-transfer \(T=170,N=1\) under \(\lambda\in\{15,25\}\) |
-| **2. Midnight crossover** | \(d_1=1395\), \(a_k=1530\) ⇒ \(T=135\) |
-| **3. Infeasible audit** | (a) \(\tau_{\min}\) 4 min wait, (b) departure window, (c) cycle \(A\to B\to A\to C\) |
-| **4. Unreachable** | Late-night window with `"No feasible route found"` |
-| **Baseline comparison** | Blind Random ≈ 0% feasible vs Constructive Walk feasibility / best \(f\) |
-
----
-
-## Optional: rebuild corridor JSON from raw GTFS
-
-If you download a ZSSK GTFS dump (`stops.txt`, `trips.txt`, `stop_times.txt`):
-
-```bash
-python scripts/parse_gtfs.py --gtfs-dir path/to/gtfs --out data/slovak_corridor.json
-```
-
-The shipped `data/slovak_corridor.json` is already sufficient for grading.
+| **1. λ trade-off** | Direct \(T=190,N=0\) vs 1-transfer \(T=170,N=1\) under \(\lambda\in\{15,25\}\) |
+| **2. Midnight** | \(d_1=1395\), \(a_k=1530\) ⇒ \(T=135\) |
+| **3. Infeasible audit** | \(\tau_{\min}\), departure window, cycle \(A\to B\to A\to C\) |
+| **4. Unreachable** | `"No feasible route found"` |
+| **Baseline** | Blind ≈ 0% vs Constructive feasibility / best \(f\) |
+| **Sensitivity** | \(n\) rollouts, \(H\), \(\tau_{\min}\) vs feas.% / best \(f\) |
 
 ---
 
 ## Design decisions (Assignment 1 feedback)
 
-1. **Timetable source** — ZSSK-style corridor subset (Košice … Bratislava) + synthetic edge-case file.  
-2. **Flat indexes** — `NamedTuple` legs + `dict` maps (`valid_legs`, `departures_from`); no heavy OOP graph classes.  
-3. **No intermediate stops at runtime** — all ordered stop-pairs on a trip are pre-expanded into direct legs.  
-4. **Single-objective** — scalar \(f(x)=T+\lambda N\) for Zadanie 2; Pareto \((T,N,a_k)\) noted as future work.
+1. **Timetable source** — honest synthetic corridor + GTFS parser for real feeds.  
+2. **Flat indexes** — `NamedTuple` + `dict` (`valid_legs`, `departures_from`).  
+3. **No intermediate stops at runtime** — pairwise leg expansion; same-train travel = one leg.  
+4. **Single-objective** — \(f=T+\lambda N\); Pareto noted as future work.
+
+---
+
+## Building the Slovak report
+
+```powershell
+winget install -e --id MiKTeX.MiKTeX   # once, if needed
+cd report
+.\build.ps1
+```
 
 ---
 
 ## Packaging for submission
 
-```bash
+```powershell
 # from the parent of tim14_zadanie2/
-zip -r tim14_zadanie2.zip tim14_zadanie2 \
-  -x "*/__pycache__/*" "*.pyc" "*/.git/*" "*/.venv/*"
+Compress-Archive -Path tim14_zadanie2 -DestinationPath tim14_zadanie2.zip -Force
+# then remove __pycache__ / .git / .venv from the zip if present
 ```
 
-Include `report_tim14_2.pdf` (4–6 pages, Slovak) in the archive before upload.
+Or with a Unix-like zip:
 
----
-
-## Building the Slovak report (LaTeX)
-
-Source: `report/report_tim14_2.tex` (Sections 1–4, Slovak, matching Assignment 1 terminology).
-
-```powershell
-# requires MiKTeX or TeX Live (pdflatex on PATH)
-winget install -e --id MiKTeX.MiKTeX   # once
-cd report
-.\build.ps1
-# → report/report_tim14_2.pdf  and  ../report_tim14_2.pdf
+```bash
+zip -r tim14_zadanie2.zip tim14_zadanie2 \
+  -x "*/__pycache__/*" "*.pyc" "*/.git/*" "*/.venv/*" \
+     "*/report/*.aux" "*/report/*.log" "*/report/*.out"
 ```

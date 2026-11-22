@@ -28,6 +28,13 @@ from src.instances import (
 from src.model import EvaluationResult, Instance, Leg, evaluate_candidate, format_leg
 
 
+# Provenance banner (honest about synthetic corridor vs real GTFS)
+PROVENANCE_NOTE = (
+    "Data provenance: hand-crafted ZSSK-shaped corridor + synthetic edge cases "
+    "(not a verbatim GTFS dump). Optional converter: scripts/parse_gtfs.py"
+)
+
+
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
@@ -249,6 +256,50 @@ def scenario_baseline_comparison(valid_legs, departures_from, all_legs) -> None:
 
 
 # ---------------------------------------------------------------------------
+# Sensitivity: rollouts / H / τ_min (for report §3)
+# ---------------------------------------------------------------------------
+
+def scenario_sensitivity(valid_legs, departures_from) -> None:
+    _banner("Sensitivity — constructive walk (seed=42, Košice→Bratislava)")
+
+    print(f"{'param':<18} {'value':>8} {'feas%':>8} {'best f':>10}")
+    _hr()
+
+    # Rollout budget
+    for n in (100, 200, 500):
+        inst = make_tradeoff_instance(lam=15.0)
+        stats = run_constructive_walk(
+            inst, departures_from, valid_legs, n_rollouts=n, seed=42
+        )
+        bf = f"{stats.best.f:.1f}" if stats.best and stats.best.f is not None else "—"
+        print(f"{'n_rollouts':<18} {n:>8} {stats.feasibility_rate:>7.1%} {bf:>10}")
+
+    # Departure window H
+    for H in (60, 120, 180):
+        inst = Instance(
+            day="D", origin="Košice", destination="Bratislava",
+            t0=480, H=H, tau_min=5, lam=15.0, k_max=4,
+        )
+        stats = run_constructive_walk(
+            inst, departures_from, valid_legs, n_rollouts=300, seed=42
+        )
+        bf = f"{stats.best.f:.1f}" if stats.best and stats.best.f is not None else "—"
+        print(f"{'H [min]':<18} {H:>8} {stats.feasibility_rate:>7.1%} {bf:>10}")
+
+    # Transfer buffer τ_min
+    for tau in (3, 5, 10):
+        inst = Instance(
+            day="D", origin="Košice", destination="Bratislava",
+            t0=480, H=120, tau_min=tau, lam=15.0, k_max=4,
+        )
+        stats = run_constructive_walk(
+            inst, departures_from, valid_legs, n_rollouts=300, seed=42
+        )
+        bf = f"{stats.best.f:.1f}" if stats.best and stats.best.f is not None else "—"
+        print(f"{'τ_min [min]':<18} {tau:>8} {stats.feasibility_rate:>7.1%} {bf:>10}")
+
+
+# ---------------------------------------------------------------------------
 # Entry point
 # ---------------------------------------------------------------------------
 
@@ -257,7 +308,8 @@ def main() -> None:
     t_start = time.perf_counter()
 
     _banner("Team 14 — Zadanie 2  |  Static Train Route Optimization")
-    print("Python standard library only · seed=42")
+    print("Gichile, Orlyk, Matsko · KPI TUKE · Python stdlib · seed=42")
+    print(PROVENANCE_NOTE)
 
     # Load & merge corridor + synthetic indexes
     v_c, d_c, legs_c, data_c = load_corridor(day="D")
@@ -270,12 +322,15 @@ def main() -> None:
     print(f"\nTimetable index: {stats['n_stations']} stations, "
           f"{stats['n_trains']} trains, {stats['n_expanded_legs']} expanded legs, "
           f"{stats['n_valid_leg_keys']} valid_legs keys")
+    print(f"Corridor meta.provenance: {data_c.get('meta', {}).get('provenance', '?')}")
+    print(f"Synthetic meta.provenance: {data_s.get('meta', {}).get('provenance', '?')}")
 
     scenario_transfer_tradeoff(valid_legs, departures_from)
     scenario_midnight(valid_legs)
     scenario_infeasible_audit(valid_legs)
     scenario_unreachable(valid_legs, departures_from)
     scenario_baseline_comparison(valid_legs, departures_from, all_legs)
+    scenario_sensitivity(valid_legs, departures_from)
 
     elapsed = time.perf_counter() - t_start
     _banner(f"Done — total runtime {elapsed:.3f}s")

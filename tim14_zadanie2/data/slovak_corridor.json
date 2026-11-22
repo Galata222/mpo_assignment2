@@ -1,6 +1,8 @@
 {
   "meta": {
-    "source": "Synthetic ZSSK-corridor subset modelled on Košice–Bratislava main line",
+    "provenance": "hand_crafted_synthetic",
+    "source": "Synthetic ZSSK-shaped corridor subset (Košice–Bratislava main line)",
+    "note": "Not a verbatim ZSSK GTFS dump. Topology and timing mimic the corridor; scripts/parse_gtfs.py can replace this file from real stops/trips/stop_times.",
     "day": "D",
     "time_unit": "minutes since 00:00 of day D",
     "stations_corridor": [
@@ -114,6 +116,38 @@
         {"station": "Trenčín", "arrival": 1080, "departure": 1085},
         {"station": "Trnava", "arrival": 1110, "departure": 1112},
         {"station": "Bratislava", "arrival": 1135, "departure": 1135}
+      ]
+    },
+    {
+      "train_id": "R845",
+      "name": "Midday R Poprad-Tatry→Bratislava (extra transfer options)",
+      "day": "D",
+      "stops": [
+        {"station": "Poprad-Tatry", "arrival": 600, "departure": 605},
+        {"station": "Vrútky", "arrival": 650, "departure": 652},
+        {"station": "Žilina", "arrival": 670, "departure": 673},
+        {"station": "Trenčín", "arrival": 705, "departure": 707},
+        {"station": "Bratislava", "arrival": 760, "departure": 760}
+      ]
+    },
+    {
+      "train_id": "Os4301",
+      "name": "Regional Košice→Prešov shuttle",
+      "day": "D",
+      "stops": [
+        {"station": "Košice", "arrival": 500, "departure": 505},
+        {"station": "Prešov", "arrival": 535, "departure": 535}
+      ]
+    },
+    {
+      "train_id": "EC130",
+      "name": "Afternoon EC Žilina→Bratislava",
+      "day": "D",
+      "stops": [
+        {"station": "Žilina", "arrival": 700, "departure": 705},
+        {"station": "Trenčín", "arrival": 730, "departure": 732},
+        {"station": "Trnava", "arrival": 750, "departure": 752},
+        {"station": "Bratislava", "arrival": 775, "departure": 775}
       ]
     }
   ]

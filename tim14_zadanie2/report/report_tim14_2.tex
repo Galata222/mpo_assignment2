@@ -17,17 +17,19 @@
 \usepackage{hyperref}
 \usepackage{fancyhdr}
 \usepackage{titlesec}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
 
-\geometry{margin=2.2cm}
-\setstretch{1.08}
-\setlength{\parskip}{0.35em}
+\geometry{margin=2.3cm}
+\setstretch{1.12}
+\setlength{\parskip}{0.4em}
 \setlength{\parindent}{0pt}
-\setlist[itemize]{leftmargin=1.4em,itemsep=0.15em,topsep=0.25em}
-\setlist[enumerate]{leftmargin=1.6em,itemsep=0.15em,topsep=0.25em}
+\setlist[itemize]{leftmargin=1.4em,itemsep=0.2em,topsep=0.3em}
+\setlist[enumerate]{leftmargin=1.6em,itemsep=0.2em,topsep=0.3em}
 \titleformat{\section}{\normalsize\bfseries}{\thesection.}{0.5em}{}
 \titleformat{\subsection}{\normalsize\bfseries}{\thesubsection}{0.5em}{}
-\titlespacing*{\section}{0pt}{0.9em}{0.35em}
-\titlespacing*{\subsection}{0pt}{0.6em}{0.2em}
+\titlespacing*{\section}{0pt}{1.0em}{0.4em}
+\titlespacing*{\subsection}{0pt}{0.7em}{0.25em}
 
 \pagestyle{fancy}
 \fancyhf{}
@@ -42,7 +44,7 @@
   urlcolor=black,
   citecolor=black,
   pdftitle={MPO Zadanie 2 — Tim 14},
-  pdfauthor={Tim 14}
+  pdfauthor={Galata Waqwaya Gichile, Oleksiy Orlyk, Rostyslav Matsko}
 }
 
 \begin{document}
@@ -51,11 +53,18 @@
   {\large\bfseries Moderné prístupy v~optimalizácii}\\[0.35em]
   {\bfseries Zadanie~2: Statická optimalizácia vlakovej trasy\\
   s~penalizáciou prestupov}\\[0.55em]
-  {\small Tim~14 \quad|\quad FEI KKUI TUKE \quad|\quad November 2026}
+  {\small
+  Galata Waqwaya Gichile, Oleksiy Orlyk, Rostyslav Matsko\\[0.2em]
+  Katedra počítačov a~informatiky, Technická univerzita v~Košiciach\\[0.2em]
+  \texttt{galata.waqwaya.gichile@student.tuke.sk},
+  \texttt{oleksiy.orlyk@student.tuke.sk},
+  \texttt{rostyslav.matsko@student.tuke.sk}\\[0.25em]
+  Tim~14 \quad|\quad November 2026
+  }
 \end{center}
-\vspace{0.4em}
+\vspace{0.35em}
 \hrule
-\vspace{0.7em}
+\vspace{0.55em}
 
 %==============================================================================
 \section{Formulácia problému a~revízie podľa spätnej väzby}
@@ -92,28 +101,27 @@ trojicu $(f(x),\,a_k,\,d_1)$.
 \paragraph{Revízie podľa pripomienok k~Zadaniu~1.}
 \begin{enumerate}[label=\arabic*)]
   \item \textbf{Zdroj cestovného poriadku.}
-        Používame filtrovaný koridorový podmnožinu v~štýle ZSSK~GTFS
-        (Košice -- Prešov -- Poprad-Tatry -- Vrútky -- Žilina -- Trenčín --
-        Trnava -- Bratislava) a~doplňujúci deterministický syntetický dataset
-        na izoláciu hraničných prípadov (prechod cez polnoc, tesný prestup,
-        nedosiahnuteľný cieľ).
+        Koridor Košice\,--\,Bratislava modelujeme v~\emph{GTFS-kompatibilnom}
+        formáte; dodávané JSON súbory sú \textbf{ručne zostavené syntetické}
+        dáta kalibrované na topológiu ZSSK (nie doslovný GTFS dump).
+        Skript \texttt{scripts/parse\_gtfs.py} umožňuje nahradiť subset
+        reálnymi \texttt{stops}/\texttt{trips}/\texttt{stop\_times}.
+        Syntetický dataset izoluje hraničné prípady (polnoc, tesný prestup,
+        cyklus, nedosiahnuteľný cieľ).
 
   \item \textbf{Ploché indexované štruktúry namiesto ťažkého OOP.}
-        Päť tried navrhovaných v~Zadaní~1 (\texttt{Station}, \texttt{TrainService},
-        \texttt{StopTime}, \texttt{Leg}, \texttt{Route}) sme nahradili
-        ľahkými \texttt{NamedTuple} záznamami a~predindexovanými
-        \texttt{dict} mapami, aby evaluácia kandidáta zostala striktne~$O(k)$
-        bez režijných nákladov na inštancovanie objektov.
+        Päť tried zo Zadania~1 sme nahradili \texttt{NamedTuple} záznamami
+        a~\texttt{dict} mapami; evaluácia zostáva $O(k)$.
 
   \item \textbf{Bez priebežných zastávok za behu.}
-        Počas predspracovania predpočítame všetky priame platné úseky
-        $(id_i,u_i,v_i,d_i,a_i)$ medzi usporiadanými dvojicami zastávok
-        toho istého spoja; zoznamy medziľahlých staníc sa za behu neuchovávajú.
+        Predpočítame všetky priame úseky medzi usporiadanými dvojicami
+        zastávok toho istého spoja; medziľahlé stanice sa za behu neuchovávajú.
+        Preto podmienka $id_i\neq id_{i+1}$ nie je obmedzením „zostať vo vlaku``:
+        jazda bez prestupu je už jeden expandovaný úsek.
 
   \item \textbf{Viacúčelové rozšírenie ako budúca práca.}
-        Pre Zadanie~2 ponechávame skalárne~$f(x)$; Pareto optimalizáciu
-        samostatných kritérií~$T(x)$, $N(x)$ a~$a_k$ uvádzame v~diskusii
-        budúcej práce (pozri~§4).
+        Pre Zadanie~2 ponechávame skalárne~$f(x)$; Pareto $(T,N,a_k)$ uvádzame
+        v~§4.
 \end{enumerate}
 
 %==============================================================================
@@ -122,17 +130,18 @@ trojicu $(f(x),\,a_k,\,d_1)$.
 
 \subsection{Indexovaný cestovný poriadok}
 
-Časy ukladáme ako celé minúty od $00{:}00$ dňa~$D$, čo umožňuje korektnú
-aritmetiku cez polnoc. Pre každý spoj s~postupnosťou zastávok
+Časy ukladáme ako celé minúty od $00{:}00$ dňa~$D$. Pre spoj so zastávkami
 $p_1,\ldots,p_m$ vygenerujeme všetky priame úseky $(p_a,p_b)$ s
-$1\le a<b\le m$ a~$a_b>d_a$. Nad množinou úsekov budujeme dva hash indexy:
+$1\le a<b\le m$ a~$a_b>d_a$. Dva hash indexy:
 \begin{itemize}
-  \item $\texttt{valid\_legs}[(D,id,u,v,d)]=a$ --- existencia a~príchod v~$O(1)$;
-  \item $\texttt{departures\_from}[(D,u)]$ --- zoznam úsekov zo stanice~$u$,
-        zoradený podľa~$d$, na rozšírenie susedov v~konštruktívnom hľadaní.
+  \item $\texttt{valid\_legs}[(D,id,u,v,d)]=a$ --- existencia/príchod v~$O(1)$;
+  \item $\texttt{departures\_from}[(D,u)]$ --- odchody zo stanice~$u$,
+        zoradené podľa~$d$.
 \end{itemize}
-V~dodaných dátach má koridor + syntetika spolu 13~staníc, 16~vlakov
-a~82~expandovaných úsekov (82 kľúčov v~\texttt{valid\_legs}).
+Filter dňa: ak trip uvádza zoznam \texttt{days}, musí obsahovať~$D$;
+inak ak uvádza pole \texttt{day}, musí sa rovnať~$D$; inak platí vždy.
+Po zlúčení koridoru a~syntetiky: 13~staníc, 19~vlakov, 99~expandovaných
+úsekov (99 kľúčov \texttt{valid\_legs}).
 
 \subsection{Overenie prípustnosti v~$O(k)$}
 
@@ -141,29 +150,32 @@ Funkcia \texttt{evaluate\_candidate} overí postupne:
   \item neprázdnosť: $k\ge 1$;
   \item koncové body: $u_1=s$, $v_k=z$;
   \item odchodové okno: $t_0\le d_1\le t_0+H$;
-  \item platnosť úseku a~kladné trvanie cez \texttt{valid\_legs}, $a_i>d_i$;
+  \item platnosť úseku cez \texttt{valid\_legs} a~kladné trvanie $a_i>d_i$;
   \item nadväznosť a~zmena vlaku: $v_i=u_{i+1}$, $id_i\neq id_{i+1}$;
   \item prestupný buffer: $d_{i+1}-a_i\ge\tau_{\min}$;
-  \item acyklickosť: množina navštívených staníc so zamietnutím opakovaní.
+  \item acyklickosť: množina navštívených staníc.
 \end{enumerate}
-Kandidát porušujúci čo len jednu podmienku je \emph{striktne} zamietnutý
-bez opravy; pri prípustnosti sa dopočíta $(T,N,f)$ a~porovnávacia trojica.
+Každý krok spracuje konštantný počet operácií na úsek (hash lookup,
+porovnanie, zápis do~\texttt{set}), preto je celková zložitosť $\Theta(k)$.
+Predspracovanie indexov je $O(|J|)$ raz za inštanciu a~potom sa zdieľa
+všetkými evaluáciami --- to je kľúčové pre budúce metaheuristiky.
+Porušenie $\Rightarrow$ striktné zamietnutie bez opravy; inak
+$(T,N,f)$ a~porovnávacia trojica. Jednotkové testy
+(\texttt{python -m unittest tests.test\_model}) pokrývajú $\lambda$-trade-off,
+polnoc, $\tau_{\min}$, cyklus a~baseline miery.
 
-\subsection{Dátové zdroje}
+\subsection{Dátové zdroje a~proveniencia}
 
 \begin{itemize}
-  \item \texttt{data/slovak\_corridor.json} --- koridorový podmnožina
-        (priamy IC, rýchliky s~prestupom v~Žiline, nočný EN cez polnoc).
-  \item \texttt{data/synthetic\_cases.json} --- riadené prípady
-        (tesný prestup 4\,min, cyklus $A\to B\to A\to C$, izolovaný spoj).
-  \item \texttt{scripts/parse\_gtfs.py} --- voliteľný prevodník zo surových
-        GTFS CSV (\texttt{stops}/\texttt{trips}/\texttt{stop\_times}) do JSON;
-        dodávka obsahuje už pripravený subset, takže grader nepotrebuje
-        externé súbory.
+  \item \texttt{slovak\_corridor.json} --- syntetický ZSSK-tvarovaný koridor
+        (IC/R/EC/EN + regionálne spoje); \texttt{meta.provenance =
+        hand\_crafted\_synthetic}.
+  \item \texttt{synthetic\_cases.json} --- riadené edge-casy
+        (Alpha/Beta/Gamma, izolovaný spoj).
+  \item \texttt{parse\_gtfs.py} --- voliteľný prevodník z~reálneho GTFS;
+        grader nepotrebuje externé súbory.
 \end{itemize}
-
-Implementácia je v~čistom Pythone~3.12 (štandardná knižnica:
-\texttt{json}, \texttt{csv}, \texttt{random}, \texttt{time}, \texttt{typing}).
+Implementácia: Python~3.12, iba štandardná knižnica.
 
 %==============================================================================
 \section{Overenie baseline a~experimentálne výsledky}
@@ -171,154 +183,174 @@ Implementácia je v~čistom Pythone~3.12 (štandardná knižnica:
 
 \subsection{Dve baseline metódy}
 
-\begin{itemize}
-  \item \textbf{Blind Random Sampling (diagnostická).}
-        Náhodne vyberie $k\in\{1,2,3\}$ úsekov z~$J$ a~odošle ich do
-        \texttt{evaluate\_candidate}. Dokazuje, že pri tesnej
-        časovo-topologickej väzbe je miera prípustnosti blízka nule
-        a~že kontrolér zachytáva všetky kategórie porušení.
+\textbf{Blind Random} vzorkuje $k\in\{1,2,3\}$ úsekov z~$J$ bez ohľadu na
+topológiu/čas --- diagnostika tesnej väzby a~kontroléra.
 
-  \item \textbf{Constructive Randomized Walk (primárna).}
-        Vzorkuje prvý úsek zo $\texttt{departures\_from}[(D,s)]$
-        s~$d_1\in[t_0,t_0+H]$; ďalej filtruje odchody z~$v_i$ podľa
-        $id_{i+1}\neq id_i$, $d_{i+1}\ge a_i+\tau_{\min}$
-        a~$v_{i+1}\notin\mathrm{visited}$, až kým $v_k=z$,
-        nastane slepá ulička, alebo $k=k_{\max}$.
-        Neúplné prechádzky sa \emph{neopravujú} --- vyhodnotia sa
-        a~započítajú do štatistiky $\mathrm{feasible\_count}/\mathrm{total}$.
-\end{itemize}
+\textbf{Constructive Randomized Walk} stavia trasu z~$s$ cez filtrované
+odchody ($id$, $\tau_{\min}$, acyklickosť) až po $z$, slepú uličku alebo
+$k_{\max}$; neúplné walky sa \emph{neopravujú}.
+
+\begin{algorithm}[H]
+\caption{Constructive Randomized Walk (jeden rollout)}
+\begin{algorithmic}[1]
+\Require inštancia $I=(s,z,D,t_0,H,\tau_{\min},\lambda,k_{\max})$, indexy
+\State $\mathcal{S}\leftarrow\{\ell\in\texttt{departures\_from}[(D,s)]: t_0\le d(\ell)\le t_0+H\}$
+\If{$\mathcal{S}=\emptyset$} \Return neprípustné (\texttt{no\_start})
+\EndIf
+\State $\ell_1\leftarrow$ náhodný prvok z~$\mathcal{S}$; $x\leftarrow(\ell_1)$; $V\leftarrow\{u_1,v_1\}$
+\While{$v(x)\neq z$ \textbf{and} $|x|<k_{\max}$}
+  \State $\mathcal{C}\leftarrow$ úseky z~$v(x)$ s~$id'\neq id$, $d'\ge a+\tau_{\min}$, $v'\notin V$
+  \If{$\mathcal{C}=\emptyset$} \Return \texttt{evaluate}($x$) so stavom \texttt{dead\_end}
+  \EndIf
+  \State pridať náhodný $\ell\in\mathcal{C}$ do~$x$; $V\leftarrow V\cup\{v(\ell)\}$
+\EndWhile
+\State \Return \texttt{evaluate}($x$) \Comment{aj pri $v\neq z$ / $k_{\max}$ --- bez opravy}
+\end{algorithmic}
+\end{algorithm}
 
 \subsection{Štyri verifikačné scenáre}
 
-Všetky behy používajú \texttt{random.seed(42)}. Celý \texttt{python main.py}
-dobehne za $\approx 0{,}01$\,s.
+Seed~42; \texttt{python main.py} $\approx 0{,}05$\,s.
 
-\paragraph{Scenár 1 --- trade-off penalizácie $\lambda$.}
-Porovnávame pomalší priamy spoj ($T=190$, $N=0$) s~rýchlejším
-jednoprestupovým spojením ($T=170$, $N=1$):
+\paragraph{Scenár 1 --- $\lambda$ trade-off.}
 \begin{center}
 \small
 \begin{tabular}{@{}lcccc@{}}
 \toprule
-Kandidát & $T$ & $N$ & $f$ pri $\lambda{=}15$ & $f$ pri $\lambda{=}25$ \\
+Kandidát & $T$ & $N$ & $f$ ($\lambda{=}15$) & $f$ ($\lambda{=}25$) \\
 \midrule
-A: IC521 Košice$\to$Bratislava & 190 & 0 & 190 & 190 \\
-B: R801+EC125 (prestup Žilina) & 170 & 1 & \textbf{185} & 195 \\
-\midrule
-Preferovaný & & & B (1~prestup) & A (priamy) \\
+A: IC521 priamy & 190 & 0 & 190 & \textbf{190} \\
+B: R801+EC125 & 170 & 1 & \textbf{185} & 195 \\
 \bottomrule
 \end{tabular}
 \end{center}
-Pri $\lambda=15$ je výhodnejší prestup; pri $\lambda=25$ vyhráva priamy spoj ---
-presne podľa $f=T+\lambda N$.
+Pri $\lambda=15$ vyhráva prestup; pri $\lambda=25$ priamy spoj.
 
-\paragraph{Scenár 2 --- prechod cez polnoc.}
-Nočný EN477 Žilina$\to$Bratislava: $d_1=1395$ ($23{:}15$),
-$a_k=1530$ ($01{:}30{+}1\mathrm{d}$) dáva $T=135$\,min a~prejde všetky
-časové kontroly.
+\paragraph{Scenáre 2--4.}
+Nočný EN477: $d_1=1395$, $a_k=1530$ $\Rightarrow T=135$.
+Audit zamietne (a)~čakanie~4\,min, (b)~$d_1$ mimo okna, (c)~cyklus
+$A\to B\to A\to C$. Neskoré okno $[1410,1440]$: 0~prípustných,
+\texttt{"No feasible route found"}.
 
-\paragraph{Scenár 3 --- audit neprípustných kandidátov.}
-Ručne zostavené trasy porušujúce (a)~$\tau_{\min}$ (čakanie 4\,min),
-(b)~odchodové okno $d_1\notin[t_0,t_0+H]$ a~(c)~acyklickosť
-($A\to B\to A\to C$) sú zamietnuté s~presnými hláseniami porušení.
-
-\paragraph{Scenár 4 --- nedosiahnuteľný cieľ.}
-Neskoré okno $[1410,1440]$ z~Košíc do Bratislavy nemá žiadny prípustný
-prvý odchod; konštruktívna walk hlási
-\texttt{"No feasible route found"} (0/50 prípustných).
-
-\subsection{Porovnanie baseline (Košice$\to$Bratislava, $\lambda=15$)}
+\subsection{Porovnanie baseline a~citlivosť}
 
 \begin{center}
 \small
 \begin{tabular}{@{}lccc@{}}
 \toprule
-Metóda & Prípustné / 500 & Miera & Najlepšie~$f$ \\
+Metóda (500 rolloutov) & Prípustné & Miera & Najlepšie~$f$ \\
 \midrule
-Blind Random Sampling & 3 & 0{,}6\,\% & 190 \\
-Constructive Randomized Walk & 225 & 45{,}0\,\% & \textbf{185} \\
+Blind Random & 2 & 0{,}4\,\% & 190 \\
+Constructive Walk & 323 & 64{,}6\,\% & \textbf{185} \\
 \bottomrule
 \end{tabular}
 \end{center}
 
-Blind Random takmer vždy zlyhá (očakávané). Konštruktívna walk dosahuje
-$\approx 45\,\%$ prípustnosť a~pri 500 rolloutoch nájde aj optimum scenára~1
-($f=185$). Najčastejšie ukončenia: \texttt{feasible}~(225),
-\texttt{dead\_end}~(229), \texttt{k\_max}~(46). Výsledky potvrdzujú súlad
-implementácie s~matematickým modelom zo Zadania~1.
+Ukončenia walk: \texttt{feasible}~323, \texttt{dead\_end}~145,
+\texttt{k\_max}~32. Blind $\approx 0\,\%$ potvrdzuje, že náhodné
+kombinácie úsekov takmer nikdy nespočítajú spojitú časovú cestu ---
+to je \emph{žiaduci} výsledok diagnostiky.
+
+\begin{center}
+\small
+\begin{tabular}{@{}lccc@{}}
+\toprule
+Parameter & Hodnota & Feas.\,\% & Best~$f$ \\
+\midrule
+$n$ rolloutov & 100 / 200 / 500 & 65{,}0 / 67{,}5 / 64{,}6 & 190 / \textbf{185} / 185 \\
+$H$ [min] & 60 / 120 / 180 & 65{,}7 / 65{,}7 / 65{,}7 & 185 / 185 / 185 \\
+$\tau_{\min}$ [min] & 3 / 5 / 10 & 65{,}7 / 65{,}7 / 56{,}3 & 185 / 185 / \textbf{190} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\textbf{Interpretácia.} Pri 100 rolloutoch (seed~42) walk ešte nemusí
+objaviť prestup R801$\to$EC125 ($f=185$) a~vráti priamy IC ($f=190$);
+od~200 rolloutov je optimum stabilné. Zväčšenie~$H$ v~tomto koridore
+nepridá lepšie prvé odchody (hlavné spoje odchádzajú o~08{:}00).
+Sprísnenie $\tau_{\min}=10$ vylúči prestup s~čakaním~5\,min, preto
+best~$f$ skočí na~190 --- priama väzba medzi modelovým parametrom
+a~optimom.
 
 %==============================================================================
 \section{Návrh metaheuristík (SA a~ACO)}
 %==============================================================================
 
-Baseline je užitočný na overenie modelu, ale náhodná konštrukcia neskúma
-systematicky okolie sľubných trás. Pre Zadanie~3 navrhujeme dve
-metaheuristiky, ktoré prirodzene nadväzujú na $O(k)$ evaluáciu
-a~index \texttt{departures\_from}.
+Baseline overí model, ale neskúma okolie systematicky. Pre Zadanie~3
+navrhujeme SA a~ACO nad rovnakou $O(k)$ evaluáciou.
 
-\subsection{Simulated Annealing (SA)}
+\subsection{Simulated Annealing}
 
-\textbf{Zdôvodnenie.} Evaluácia kandidáta je $O(k)$ a~lacná, preto SA môže
-prijať tisíce návrhov za sekundu. Deterministický greedy výber najskoršieho
-odchodu často uviazne v~lokálnom optime (príliš skorý odchod s~dlhým
-neskorším čakaním); SA s~teplotným plánom dokáže také riešenia dočasne
-prijať a~neskôr ich vylepšiť.
+\textbf{Zdôvodnenie.} Lacná evaluácia umožňuje tisíce návrhov/s;
+greedy skorý odchod môže uviaznuť v~lokálnom optime s~dlhým čakaním
+(citlivosť na~$n$ rolloutov v~§3 ukazuje, že čistá náhoda potrebuje
+rozpočet, kým objaví $f=185$).
 
-\textbf{Reprezentácia a~okolia.} Stav je prípustná (alebo dočasne
-mäkko-penalizovaná) postupnosť úsekov~$x$. Navrhované operátory:
-\begin{itemize}
-  \item \emph{subpath rerouting} --- náhodný súvislý podúsek
-        $\ell_i,\ldots,\ell_j$ nahradíme novou konštruktívnou prechádzkou
-        medzi $u_i$ a~$v_j$ s~respektovaním časového okna po príchode
-        predchádzajúceho úseku;
-  \item \emph{first-departure shift} --- prvý úsek vymeníme za iný odchod
-        z~$s$ v~okne $[t_0,t_0+H]$ a~zvyšok dorátame konštruktívne;
-  \item \emph{mäkká penalizácia $\tau_{\min}$} pri vysokých teplotách ---
-        kandidáty s~mierne kratším prestupom ($d_{i+1}-a_i\in[0,\tau_{\min})$)
-        dostanú aditívnu penalizáciu namiesto tvrdého zamietnutia; pri
-        chladnutí sa tvrdý filter obnoví.
-\end{itemize}
-Akceptácia: $\Delta f\le 0$ vždy; inak s~pravdepodobnosťou
-$e^{-\Delta f/T}$. Chladenie geometrické ($T\leftarrow \alpha T$,
-$\alpha\approx 0{,}95$).
+\textbf{Okola:} \emph{subpath rerouting} (náhrada $\ell_i..\ell_j$
+konštruktívnou prechádzkou); \emph{first-departure shift} v~$[t_0,t_0+H]$;
+\emph{mäkká $\tau_{\min}$} pri vysokej teplote (penalizácia namiesto
+zamietnutia), pri chladnutí návrat k~tvrdému filtru --- priamo motivované
+citlivosťou $\tau_{\min}=10\Rightarrow f=190$.
+Akceptácia $e^{-\Delta f/T}$; $T\leftarrow\alpha T$, $\alpha\approx0{,}95$.
 
-\subsection{Ant Colony Optimization (ACO)}
+\begin{center}
+\small
+\begin{tabular}{@{}ll@{}}
+\toprule
+Parameter SA & Predbežná hodnota \\
+\midrule
+Počiatočná teplota $T_0$ & $\approx 50$ (rádovo $\Delta f$) \\
+Chladenie $\alpha$ & $0{,}95$ \\
+Návrhov na teplotu $L$ & $100$ \\
+Max.\ mäkký deficit prestupu & $2$\,min \\
+Finálna kontrola & tvrdý \texttt{evaluate\_candidate} \\
+\bottomrule
+\end{tabular}
+\end{center}
 
-\textbf{Zdôvodnenie.} ACO konštruuje trasu krok za krokom rovnako ako
-baseline walk, takže topologická nadväznosť ($v_i=u_{i+1}$) a~časový
-buffer ($d_{i+1}-a_i\ge\tau_{\min}$) sú zaručené už pri generovaní ---
-na rozdiel od slepého vzorkovania z~$J$.
+\subsection{Ant Colony Optimization}
 
-\textbf{Feromóny a~heuristika.} Feromónová matica $\tau_{(u,v)}$ na
-pároch staníc (prípadne jemnejšie na kľúčoch $(u,v,id)$);
-viditeľnosť
+\textbf{Zdôvodnenie.} Konštrukcia krok za krokom zaručí
+$v_i=u_{i+1}$ a~$d_{i+1}-a_i\ge\tau_{\min}$ už pri generovaní
+(rovnaký filter ako baseline walk, ale s~učením).
+
+Feromón $\tau_{(u,v)}$ (príp.\ $(u,v,id)$); viditeľnosť
 \begin{equation}
   \eta_{uv}
   \propto
-  \frac{1}{1+(d_{\mathrm{next}}-a_{\mathrm{curr}})+\gamma\cdot\mathbf{1}[v\neq z]},
+  \frac{1}{1+(d_{\mathrm{next}}-a_{\mathrm{curr}})+\gamma\cdot\mathbf{1}[v\neq z]}.
 \end{equation}
-penalizuje dlhé čakanie a~odklon od cieľa. Pravdepodobnosť výberu ďalšieho
-úseku je klasická
-$p\propto \tau^\alpha\eta^\beta$ nad filtrovanými kandidátmi z
-\texttt{departures\_from}. Elitná aktualizácia:
-$\Delta\tau \propto 1/f(x^{*})$ pre najlepšiu trasu iterácie / globálne
-najlepšiu, s~evaporáciou $(1-\rho)\tau$.
+Výber $p\propto\tau^{\alpha}\eta^{\beta}$; elitná aktualizácia
+$\Delta\tau\propto 1/f(x^{*})$, evaporácia $(1-\rho)\tau$.
 
-\paragraph{Budúca práca (viacúčelovosť).}
-Po stabilizácii SA/ACO na skalárnom~$f$ plánujeme Pareto frontu
-$(T,N,a_k)$ (napr.\ NSGA-II alebo ACO s~viacerými feromónovými matricami),
-čo reflektuje pripomienku zo Zadania~1, že oddelenie kritérií by bolo
-užitočné rozšírenie.
+\begin{center}
+\small
+\begin{tabular}{@{}ll@{}}
+\toprule
+Parameter ACO & Predbežná hodnota \\
+\midrule
+Počet mravcov $m$ & $20$ \\
+$\alpha$, $\beta$ (feromón / heuristika) & $1$, $2$ \\
+Evaporácia $\rho$ & $0{,}1$ \\
+Penalizácia odklonu $\gamma$ & $30$\,min \\
+Iterácie & $100$ \\
+\bottomrule
+\end{tabular}
+\end{center}
 
-\vspace{0.6em}
+\paragraph{Budúca práca.} Po skalárnom~$f$ Pareto fronta $(T,N,a_k)$
+(NSGA-II / multi-feromónové ACO) --- rozšírenie odporúčané v~Zadaní~1.
+Väčšia inštancia z~reálneho GTFS cez \texttt{parse\_gtfs.py} overí škálovanie
+nad rámec súčasných $\approx 10^2$ úsekov.
+
+\vspace{0.5em}
 \hrule
-\vspace{0.4em}
+\vspace{0.35em}
 {\small
-\noindent\textbf{Príloha --- spustenie.}
-\texttt{cd tim14\_zadanie2 \&\& python main.py}\\
-Požiadavky: Python~3.12+, bez externých balíkov.
-Zdrojové súbory: \texttt{src/model.py}, \texttt{src/instances.py},
-\texttt{src/baseline.py}.
+\noindent\textbf{Príloha.}
+\texttt{python main.py}; \texttt{python -m unittest tests.test\_model}.
+Python~3.12+, bez externých balíkov.
+Súbory: \texttt{src/model.py}, \texttt{instances.py}, \texttt{baseline.py}.
 }
 
 \end{document}

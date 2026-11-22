@@ -1,6 +1,8 @@
 {
   "meta": {
+    "provenance": "hand_crafted_synthetic",
     "purpose": "Controlled edge cases: midnight, tight transfer, cycle graph, unreachable",
+    "note": "Isolated stations Alpha/Beta/Gamma/IsolatedX/Y are verification fixtures, not real ZSSK stops.",
     "day": "D",
     "time_unit": "minutes since 00:00 of day D"
   },

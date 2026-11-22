@@ -36,6 +36,23 @@ def parse_hhmm(value: str, day_offset: int = 0) -> int:
     return day_offset * 1440 + hours * 60 + minutes
 
 
+def _trip_operates_on(trip: Dict[str, Any], day: str) -> bool:
+    """Return True if ``trip`` should be indexed for service day ``day``.
+
+    Acceptance rules (first match wins conceptually; all must allow):
+      - if ``days`` is a list/tuple, ``day`` must be a member;
+      - else if ``day`` field is set, it must equal the query day;
+      - else (no day metadata) the trip is treated as always operating.
+    """
+    operating = trip.get("days")
+    if operating is not None:
+        return day in operating
+    trip_day = trip.get("day")
+    if trip_day is not None:
+        return trip_day == day
+    return True
+
+
 def expand_trip_legs(
     train_id: str,
     stops: Sequence[Dict[str, Any]],
@@ -79,11 +96,8 @@ def build_indexes(
     all_legs: List[Leg] = []
 
     for trip in trips:
-        if trip.get("day") not in (None, day) and trip.get("day") != day:
-            # Allow trips that list operating days, or omit day (= always)
-            operating = trip.get("days")
-            if operating is not None and day not in operating:
-                continue
+        if not _trip_operates_on(trip, day):
+            continue
         train_id = str(trip["train_id"])
         stops = trip["stops"]
         for leg in expand_trip_legs(train_id, stops):
